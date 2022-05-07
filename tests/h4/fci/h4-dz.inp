@@ -1,0 +1,40 @@
+ $CONTRL SCFTYP=ROHF MULT=1 CITYP=ALDET RUNTYP=ENERGY UNITS=ANGS ISPHER=1 $END
+ $SYSTEM MWORDS=5000 $END
+ $scf nconv=1.0d-8 diis=.true. $end
+ $CIDET NCORE=0 NELS=4 NACT=8 PRTTOL=0.05 $end
+ $DATA
+h4 model r=2.0au alpha=0.10000  minimum huzinaga basis
+c1
+HYDROGEN    1     1.000         0.500         0.0000
+  S   3 
+  1    19.2406  0.032828
+  2    2.8992   0.231208
+  3    0.6534   0.817238
+  S   1
+  1    0.1776   1.00000
+
+HYDROGEN    1     1.000        -0.500         0.00000
+  S   3 
+  1    19.2406  0.032828
+  2    2.8992   0.231208
+  3    0.6534   0.817238
+  S   1
+  1    0.1776   1.00000
+
+HYDROGEN    1    -1.000        -0.500         0.00000
+  S   3 
+  1    19.2406  0.032828
+  2    2.8992   0.231208
+  3    0.6534   0.817238
+  S   1
+  1    0.1776   1.00000
+
+HYDROGEN    1    -1.000         0.500         0.0000
+  S   3 
+  1    19.2406  0.032828
+  2    2.8992   0.231208
+  3    0.6534   0.817238
+  S   1
+  1    0.1776   1.00000
+
+ $END    
