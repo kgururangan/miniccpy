@@ -60,8 +60,50 @@ def run_cc_calc(geometry, basis, nfrozen, method):
     print("")
     print("CC calculation completed in {:.2f}m {:.2f}s".format(minutes, seconds))
 
+    return T, e_corr+e_hf, fock, e2int, corr_occ, corr_unocc
 
+def get_hbar(T, fock, g, o, v, method):
 
+    # import the specific CC method module and get its update function
+    mod = import_module("miniccpy.hbar")
+    hbar_builder = getattr(mod, 'build_hbar_'+method.lower())
+
+    H1, H2 = hbar_builder(T, fock, g, o, v)
+
+    return H1, H2
+
+def run_eomcc_calc(T, fock, g, H1, H2, o, v, nroot, method):
+
+    from miniccpy.initial_guess import get_initial_guess
+
+    # check if requested EOMCC calculation is implemented in modules
+    if method not in MODULES:
+        raise NotImplementedError(
+            "{} not implemented".format(method)
+        )
+    # import the specific CC method module and get its update function
+    mod = import_module("miniccpy."+method.lower())
+    calculation = getattr(mod, 'kernel')
+
+    # get the initial guess
+    R0, omega0 = get_initial_guess(fock, g, o, v, nroot) 
+
+    R = [0 for i in range(nroot)]
+    omega = [0 for i in range(nroot)]
+    r0 = [0 for i in range(nroot)]
+    for n in range(nroot):
+        tic = time.time()
+        R[n], omega[n], r0[n] = calculation(R0[:, n], T, omega0[n], H1, H2, o, v)
+        toc = time.time()
+
+        minutes, seconds = divmod(toc - tic, 60)
+
+        print("")
+        print("    EOMCC Excitation Energy: {: 20.12f}".format(omega[n]))
+        print("")
+        print("EOMCC calculation completed in {:.2f}m {:.2f}s".format(minutes, seconds))
+
+    return R, omega, r0
 
 
 

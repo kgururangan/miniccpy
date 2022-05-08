@@ -27,6 +27,13 @@ def cc_energy(t1, t2, f, g, o, v):
 
     return energy
 
+def calc_r0(r1, r2, H1, H2, omega, o, v):
+
+    r0 = np.einsum("me,em->", H1[o, v], r1)
+    r0 += 0.25 * np.einsum("mnef,efmn->", H2[o, o, v, v], r2)
+
+    return r0/omega
+
 def hf_energy(z, g, o):
 
     energy = np.einsum('ii->', z[o, o])
