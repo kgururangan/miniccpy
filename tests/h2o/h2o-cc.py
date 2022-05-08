@@ -2,7 +2,7 @@
 import os
 os.environ["MKL_NUM_THREADS"] = "{}".format(os.cpu_count() - 1)
 
-from miniccpy.driver import run_cc_calc
+from miniccpy.driver import run_scf, run_cc_calc
 
 basis = 'dz'
 nfrozen = 1
@@ -12,7 +12,9 @@ geom = [['H', (0, 1.515263, -1.058898)],
         ['H', (0, -1.515263, -1.058898)], 
         ['O', (0.0, 0.0, -0.0090)]]
 
-run_cc_calc(geom, basis, nfrozen, method='ccsd')
+fock, g, e_hf, o, v = run_scf(geom, basis, nfrozen)
+
+T, E_corr = run_cc_calc(fock, g, o, v, method='ccsd')
 
 
 

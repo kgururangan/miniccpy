@@ -9,13 +9,12 @@ modules = glob.glob(join(dirname(__file__), "*.py"))
 __all__ = [ basename(f)[:-3] for f in modules if isfile(f) and not f.endswith('__init__.py')]
 MODULES = [module for module in __all__]
 
-def run_cc_calc(geometry, basis, nfrozen, method):
+def run_scf(geometry, basis, nfrozen):
 
     from pyscf import gto, scf
-
     from miniccpy.printing import print_system_information
     from miniccpy.integrals import get_integrals_from_pyscf, get_fock
-    from miniccpy.energy import hf_energy, cc_energy
+    from miniccpy.energy import hf_energy
 
     mol = gto.Mole()
 
@@ -39,6 +38,12 @@ def run_cc_calc(geometry, basis, nfrozen, method):
 
     print_system_information(mf, nfrozen, e_hf)
 
+    return fock, e2int, e_hf, corr_occ, corr_unocc
+
+def run_cc_calc(fock, g, o, v, method):
+
+    from miniccpy.energy import cc_energy
+
     # check if requested CC calculation is implemented in modules
     if method not in MODULES:
         raise NotImplementedError(
@@ -49,18 +54,17 @@ def run_cc_calc(geometry, basis, nfrozen, method):
     cc_calculation = getattr(cc_mod, 'kernel')
 
     tic = time.time()
-    T, e_corr = cc_calculation(fock, e2int, corr_occ, corr_unocc)
+    T, e_corr = cc_calculation(fock, g, o, v)
     toc = time.time()
 
     minutes, seconds = divmod(toc - tic, 60)
 
     print("")
     print("    CC Correlation Energy: {: 20.12f}".format(e_corr))
-    print("    CC Total Energy:       {: 20.12f}".format(e_corr + e_hf))
     print("")
     print("CC calculation completed in {:.2f}m {:.2f}s".format(minutes, seconds))
 
-    return T, e_corr+e_hf, fock, e2int, corr_occ, corr_unocc
+    return T, e_corr
 
 def get_hbar(T, fock, g, o, v, method):
 
