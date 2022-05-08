@@ -3,8 +3,9 @@ import numpy as np
 
 def kernel(R0, T, omega, H1, H2, o, v, maxit=80, convergence=1.0e-07):
     """
-    Diagonalize the similarity-transformed Hamiltonian HBar using the
-    non-Hermitian Davidson algorithm.
+    Diagonalize the similarity-transformed CCSDT Hamiltonian using the
+    non-Hermitian Davidson algorithm for a specific root defined by an initial
+    guess vector.
     """
     from miniccpy.energy import calc_r0
 
@@ -98,6 +99,8 @@ def kernel(R0, T, omega, H1, H2, o, v, maxit=80, convergence=1.0e-07):
     return R, omega, r0
 
 def update(r1, r2, r3, omega, e_ai, e_abij, e_abcijk):
+    """Perform the diagonally preconditioned residual (DPR) update
+    to get the next correction vector."""
 
     r1 /= (omega - e_ai)
     r2 /= (omega - e_abij)
@@ -107,6 +110,9 @@ def update(r1, r2, r3, omega, e_ai, e_abij, e_abcijk):
 
 
 def HR(r1, r2, r3, t1, t2, t3, H1, H2, o, v):
+    """Compute the matrix-vector product H * R, where
+    H is the CCSDT similarity-transformed Hamiltonian and R is
+    the EOMCCSDT linear excitation operator."""
 
     # update R1
     HR1 = build_HR1(r1, r2, r3, H1, H2, o, v)
@@ -119,6 +125,9 @@ def HR(r1, r2, r3, t1, t2, t3, H1, H2, o, v):
 
 
 def build_HR1(r1, r2, r3, H1, H2, o, v):
+    """Compute the projection of HR on singles
+        X[a, i] = < ia | [ HBar(CCSDT) * (R1 + R2 + R3) ]_C | 0 >
+    """
 
     X1 = -np.einsum("mi,am->ai", H1[o, o], r1, optimize=True)
     X1 += np.einsum("ae,ei->ai", H1[v, v], r1, optimize=True)
@@ -131,6 +140,9 @@ def build_HR1(r1, r2, r3, H1, H2, o, v):
 
 
 def build_HR2(r1, r2, r3, t1, t2, t3, H1, H2, o, v):
+    """Compute the projection of HR on doubles
+        X[a, b, i, j] = < ijab | [ HBar(CCSDT) * (R1 + R2 + R3) ]_C | 0 >
+    """
 
     X2 = -0.5 * np.einsum("mi,abmj->abij", H1[o, o], r2, optimize=True)  # A(ij)
     X2 += 0.5 * np.einsum("ae,ebij->abij", H1[v, v], r2, optimize=True)  # A(ab)
@@ -164,6 +176,9 @@ def build_HR2(r1, r2, r3, t1, t2, t3, H1, H2, o, v):
     return X2
 
 def build_HR3(r1, r2, r3, t1, t2, t3, H1, H2, o, v):
+    """Compute the projection of HR on triples
+        X[a, b, c, i, j, k] = < ijkabc | [ HBar(CCSDT) * (R1 + R2 + R3) ]_C | 0 >
+    """
 
     # Intermediates
     X1 = np.zeros_like(H1)

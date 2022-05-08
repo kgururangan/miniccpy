@@ -10,7 +10,9 @@ __all__ = [ basename(f)[:-3] for f in modules if isfile(f) and not f.endswith('_
 MODULES = [module for module in __all__]
 
 def run_scf(geometry, basis, nfrozen):
-
+    """Run the ROHF calculation using PySCF and obtain the molecular
+    orbital integrals in normal-ordered form as well as the occupied/
+    unoccupied slicing arrays for correlated calculations."""
     from pyscf import gto, scf
     from miniccpy.printing import print_system_information
     from miniccpy.integrals import get_integrals_from_pyscf, get_fock
@@ -41,8 +43,7 @@ def run_scf(geometry, basis, nfrozen):
     return fock, e2int, e_hf, corr_occ, corr_unocc
 
 def run_cc_calc(fock, g, o, v, method):
-
-    from miniccpy.energy import cc_energy
+    """Run the ground-state CC calculation specified by `method`."""
 
     # check if requested CC calculation is implemented in modules
     if method not in MODULES:
@@ -67,6 +68,8 @@ def run_cc_calc(fock, g, o, v, method):
     return T, e_corr
 
 def get_hbar(T, fock, g, o, v, method):
+    """Obtain the similarity-transformed Hamiltonian Hbar corresponding
+    to the level of ground-state CC theory specified by `method`."""
 
     # import the specific CC method module and get its update function
     mod = import_module("miniccpy.hbar")
@@ -77,6 +80,8 @@ def get_hbar(T, fock, g, o, v, method):
     return H1, H2
 
 def run_eomcc_calc(T, fock, g, H1, H2, o, v, nroot, method):
+    """Run the excited-state EOMCC calculation specified by `method`.
+    Currently, this module only supports CIS initial guesses."""
 
     from miniccpy.initial_guess import get_initial_guess
 

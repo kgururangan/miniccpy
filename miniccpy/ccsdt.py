@@ -5,6 +5,9 @@ from miniccpy.hbar import get_ccs_intermediates, get_ccsd_intermediates
 from miniccpy.diis import DIIS
 
 def singles_residual(t1, t2, t3, f, g, o, v):
+    """Compute the projection of the CCSDT Hamiltonian on singles
+        X[a, i] = < ia | (H_N exp(T1+T2+T3))_C | 0 >
+    """
 
     chi_vv = f[v, v] + np.einsum("anef,fn->ae", g[v, o, v, v], t1, optimize=True)
 
@@ -32,6 +35,9 @@ def singles_residual(t1, t2, t3, f, g, o, v):
 
 
 def doubles_residual(t1, t2, t3, f, g, o, v):
+    """Compute the projection of the CCSDT Hamiltonian on doubles
+        X[a, b, i, j] = < ijab | (H_N exp(T1+T2+T3))_C | 0 >
+    """
 
     H1, H2 = get_ccs_intermediates(t1, f, g, o, v)
 
@@ -67,6 +73,9 @@ def doubles_residual(t1, t2, t3, f, g, o, v):
     return doubles_res
 
 def triples_residual(t1, t2, t3, f, g, o, v):
+    """Compute the projection of the CCSDT Hamiltonian on triples
+        X[a, b, c, i, j, k] = < ijkabc | (H_N exp(T1+T2+T3))_C | 0 >
+    """
 
     H1, H2 = get_ccsd_intermediates(t1, t2, f, g, o, v)
 
@@ -93,6 +102,8 @@ def triples_residual(t1, t2, t3, f, g, o, v):
 
 
 def kernel(fock, g, o, v, max_iter=100, stopping_eps=1.0E-8, diis_size=6, n_start_diis=3, out_of_core=False):
+    """Solve the CCSDT system of nonlinear equations using Jacobi iterations
+    with DIIS acceleration. The initial values of the T amplitudes are taken to be 0."""
 
     eps = np.kron(np.diagonal(fock)[::2], np.ones(2))
     n = np.newaxis

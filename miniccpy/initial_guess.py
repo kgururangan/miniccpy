@@ -1,6 +1,8 @@
 import numpy as np
 
 def get_initial_guess(f, g, o, v, nroot):
+    """Obtain the lowest `nroot` roots of the CIS Hamiltonian
+    to serve as the initial guesses for the EOMCC calculations."""
 
     H = build_cis_hamiltonian(f, g, o, v)
     omega, C = np.linalg.eig(H)
@@ -15,6 +17,12 @@ def get_initial_guess(f, g, o, v, nroot):
 
 
 def build_cis_hamiltonian(f, g, o, v):
+    """ Construct the CIS Hamiltonian with matrix elements
+        given by:
+        < ia | H_N | jb > = < a | f | b > * delta(i, j)
+                          - < j | f | i > * delta(a, b)
+                          + < aj | v | ib >
+    """
 
     nunocc, nocc = f[v, o].shape
     n1 = nocc * nunocc

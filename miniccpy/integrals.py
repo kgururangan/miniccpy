@@ -4,6 +4,8 @@ from pyscf import ao2mo
 from miniccpy.energy import hf_energy, hf_energy_from_fock
 
 def get_integrals_from_pyscf(meanfield):
+    """Obtain the molecular orbital integrals from PySCF and convert them to
+    the normal-ordered form."""
 
     molecule = meanfield.mol
     mo_coeff = meanfield.mo_coeff
@@ -30,6 +32,7 @@ def get_integrals_from_pyscf(meanfield):
     return z, g, fock, e_hf + molecule.energy_nuc(), molecule.energy_nuc()
 
 def spatial_to_spinorb(e1int, e2int):
+    """Convert spatial orbital integrals to spinorbital integrals."""
 
     n = e1int.shape[0]
     z = np.zeros((2*n, 2*n))
@@ -55,6 +58,9 @@ def spatial_to_spinorb(e1int, e2int):
 
 
 def get_fock(z, g, o):
+    """Calculate the Fock matrix elements defined by
+        < p | f | q > = < p | z | q > + < p i | v | q i >
+    using the molecular spinorbital integrals."""
 
     f = z + np.einsum("piqi->pq", g[:, o, :, o])
 

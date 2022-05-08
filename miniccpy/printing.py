@@ -4,6 +4,7 @@ from pyscf import symm
 WHITESPACE = "  "
 
 def print_system_information(meanfield, nfrozen, hf_energy):
+    """Print a nice output of the molecular system information."""
 
     molecule = meanfield.mol
     nelectrons = molecule.nelectron

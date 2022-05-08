@@ -2,6 +2,21 @@ import numpy as np
 from miniccpy.utilities import remove_file
 
 class DIIS:
+    """Class for the DIIS accelerator engine.
+
+    Attributes
+    ----------
+    ndim : int
+        Size of vector that is to be extrapolated
+    diis_size : int
+        Number of diis vectors to use in extrapolation
+    out_of_core : bool
+        Boolean to indicate whether or not to use disk memory to store vectors and residuals
+    vecfile : str (default="t.npy")
+        File name of Numpy memory map holding the previous vectors
+    residfile : str (default="dt.npy")
+        File name of Numpy memory map holding the previous residuals
+    """
     def __init__(self, ndim, diis_size, out_of_core, vecfile="t.npy", residfile="dt.npy"):
 
         self.diis_size = diis_size

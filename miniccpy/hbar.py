@@ -1,8 +1,12 @@
 import numpy as np
 
 def get_ccs_intermediates(t1, f, g, o, v):
-    """
-    Calculate the CCS-like similarity-transformed HBar intermediates (H_N e^T1)_C.
+    """Calculate the quantities related to the one-
+    and two-body components of the CCS similarity-transformed 
+    Hamiltonian, [H_N exp(T1)]_C, which serve as suitable 
+    intermediates for constructing the CCSD amplitude equations.
+        H1[:, :] ~ < p | [H_N exp(T1)]_C | q > (related to, not equal!)
+        H2[:, :, :, :] ~ < pq | [H_N exp(T1)]_C | rs > (related to, not equal!)
     """
 
     norbitals = f.shape[0]
@@ -48,9 +52,13 @@ def get_ccs_intermediates(t1, f, g, o, v):
 
 
 def get_ccsd_intermediates(t1, t2, f, g, o, v):
-    """Calculate the CCSD-like intermediates for CCSDT. This routine
-    should only calculate terms with T2 and any remaining terms outside of the CCS intermediate
-    routine."""
+    """Calculate the quantities related to the one-
+    and two-body components of the CCSD similarity-transformed 
+    Hamiltonian, [H_N exp(T1+T2)]_C, which serve as suitable 
+    intermediates for constructing the CCSDT amplitude equations.
+        H1[:, :] ~ < p | [H_N exp(T1+T2)]_C | q > (related to, not equal!)
+        H2[:, :, :, :] ~ < pq | [H_N exp(T1+T2)]_C | rs > (related to, not equal!)
+    """
 
     norbitals = f.shape[0]
 
@@ -120,9 +128,12 @@ def get_ccsd_intermediates(t1, t2, f, g, o, v):
     return H1, H2
 
 def build_hbar_ccsd(T, f, g, o, v):
-    """Calculate the CCSD-like intermediates for CCSDT. This routine
-    should only calculate terms with T2 and any remaining terms outside of the CCS intermediate
-    routine."""
+    """Calculate the one- and two-body components of the CCSD 
+    similarity-transformed Hamiltonian [H_N exp(T1+T2)]_C,
+    defined by 
+        H1[:, :] = < p | [H_N exp(T1+T2)]_C | q > 
+        H2[:, :, :, :] = < pq | [H_N exp(T1+T2)]_C | rs >.
+    """
 
     norbitals = f.shape[0]
     nunocc, nocc = f[v, o].shape
@@ -198,9 +209,12 @@ def build_hbar_ccsd(T, f, g, o, v):
     return H1, H2
 
 def build_hbar_ccsdt(T, f, g, o, v):
-    """Calculate the CCSD-like intermediates for CCSDT. This routine
-    should only calculate terms with T2 and any remaining terms outside of the CCS intermediate
-    routine."""
+    """Calculate the one- and two-body components of the CCSDT 
+    similarity-transformed Hamiltonian [H_N exp(T1+T2+T3)]_C,
+    defined by 
+        H1[:, :] = < p | [H_N exp(T1+T2+T3)]_C | q > 
+        H2[:, :, :, :] = < pq | [H_N exp(T1+T2+T3)]_C | rs >.
+    """
 
     norbitals = f.shape[0]
     nunocc, nocc = f[v, o].shape
