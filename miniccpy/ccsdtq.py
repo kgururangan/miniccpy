@@ -165,7 +165,7 @@ def quadruples_residual(t1, t2, t3, t4, f, g, o, v):
 
     return quadruples_residual
 
-def kernel(fock, g, o, v, max_iter=100, stopping_eps=1.0E-8, diis_size=6, n_start_diis=3, out_of_core=True):
+def kernel(fock, g, o, v, maxit, convergence, diis_size, n_start_diis, out_of_core):
     """Solve the CCSDTQ system of nonlinear equations using Jacobi iterations
     with DIIS acceleration. The initial values of the T amplitudes are taken to be 0."""
 
@@ -196,7 +196,7 @@ def kernel(fock, g, o, v, max_iter=100, stopping_eps=1.0E-8, diis_size=6, n_star
     print("    ==> CCSDTQ amplitude equations <==")
     print("")
     print("     Iter               Energy                 |dE|                 |dT|")
-    for idx in range(max_iter):
+    for idx in range(maxit):
 
         tic = time.time()
 
@@ -215,7 +215,7 @@ def kernel(fock, g, o, v, max_iter=100, stopping_eps=1.0E-8, diis_size=6, n_star
         current_energy = cc_energy(t1, t2, fock, g, o, v)
         delta_e = np.abs(old_energy - current_energy)
 
-        if delta_e < stopping_eps and res_norm < stopping_eps:
+        if delta_e < convergence and res_norm < convergence:
             break
 
         if idx >= n_start_diis:

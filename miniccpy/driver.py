@@ -9,7 +9,7 @@ modules = glob.glob(join(dirname(__file__), "*.py"))
 __all__ = [ basename(f)[:-3] for f in modules if isfile(f) and not f.endswith('__init__.py')]
 MODULES = [module for module in __all__]
 
-def run_scf(geometry, basis, nfrozen):
+def run_scf(geometry, basis, nfrozen=0):
     """Run the ROHF calculation using PySCF and obtain the molecular
     orbital integrals in normal-ordered form as well as the occupied/
     unoccupied slicing arrays for correlated calculations."""
@@ -42,7 +42,7 @@ def run_scf(geometry, basis, nfrozen):
 
     return fock, e2int, e_hf, corr_occ, corr_unocc
 
-def run_cc_calc(fock, g, o, v, method):
+def run_cc_calc(fock, g, o, v, method, maxit=80, convergence=1.0e-07, diis_size=6, n_start_diis=3, out_of_core=False):
     """Run the ground-state CC calculation specified by `method`."""
 
     # check if requested CC calculation is implemented in modules
@@ -51,11 +51,11 @@ def run_cc_calc(fock, g, o, v, method):
             "{} not implemented".format(method)
         )
     # import the specific CC method module and get its update function
-    cc_mod = import_module("miniccpy."+method.lower())
-    cc_calculation = getattr(cc_mod, 'kernel')
+    mod = import_module("miniccpy."+method.lower())
+    calculation = getattr(mod, 'kernel')
 
     tic = time.time()
-    T, e_corr = cc_calculation(fock, g, o, v)
+    T, e_corr = calculation(fock, g, o, v, maxit, convergence, diis_size, n_start_diis, out_of_core)
     toc = time.time()
 
     minutes, seconds = divmod(toc - tic, 60)
@@ -79,7 +79,7 @@ def get_hbar(T, fock, g, o, v, method):
 
     return H1, H2
 
-def run_eomcc_calc(T, fock, g, H1, H2, o, v, nroot, method):
+def run_eomcc_calc(T, fock, g, H1, H2, o, v, nroot, method, maxit=80, convergence=1.0e-07):
     """Run the excited-state EOMCC calculation specified by `method`.
     Currently, this module only supports CIS initial guesses."""
 
@@ -102,7 +102,7 @@ def run_eomcc_calc(T, fock, g, H1, H2, o, v, nroot, method):
     r0 = [0 for i in range(nroot)]
     for n in range(nroot):
         tic = time.time()
-        R[n], omega[n], r0[n] = calculation(R0[:, n], T, omega0[n], H1, H2, o, v)
+        R[n], omega[n], r0[n] = calculation(R0[:, n], T, omega0[n], H1, H2, o, v, maxit, convergence)
         toc = time.time()
 
         minutes, seconds = divmod(toc - tic, 60)
